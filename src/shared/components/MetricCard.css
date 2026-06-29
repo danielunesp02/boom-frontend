@@ -1,0 +1,24 @@
+.metric-card {
+  min-height: 132px;
+}
+
+.metric-card p {
+  margin: 0;
+  color: #667085;
+  font-size: 0.9rem;
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 0.65rem;
+  color: #101828;
+  font-size: clamp(1.7rem, 3vw, 2.25rem);
+  line-height: 1;
+}
+
+.metric-card span {
+  display: block;
+  margin-top: 0.65rem;
+  color: #475467;
+  font-size: 0.88rem;
+}

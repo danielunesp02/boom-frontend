@@ -1,0 +1,39 @@
+.timeline p {
+  margin: 0.25rem 0 0;
+}
+
+.timeline-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.timeline-date {
+  display: grid;
+  place-items: center;
+  min-height: 56px;
+  border-radius: 16px;
+  background: #eef4ff;
+  color: #175cd3;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.timeline-item span {
+  display: block;
+  margin-top: 0.25rem;
+  color: #667085;
+  font-size: 0.88rem;
+}
+
+.timeline-item p {
+  margin-top: 0.5rem;
+  color: #475467;
+}

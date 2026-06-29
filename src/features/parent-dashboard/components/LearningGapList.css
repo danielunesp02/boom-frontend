@@ -1,0 +1,33 @@
+.gap-list p {
+  margin: 0.25rem 0 0;
+}
+
+.gap-items {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.25rem;
+}
+
+.gap-item {
+  padding: 1rem;
+  border-radius: 18px;
+  background: #fffbfa;
+  border: 1px solid #fedf89;
+}
+
+.gap-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.gap-item p {
+  color: #475467;
+}
+
+.gap-item span {
+  display: block;
+  margin-top: 0.45rem;
+  color: #667085;
+  font-size: 0.86rem;
+}

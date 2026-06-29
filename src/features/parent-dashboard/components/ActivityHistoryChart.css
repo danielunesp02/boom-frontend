@@ -1,0 +1,56 @@
+.activity-chart {
+  overflow: hidden;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.chart-header p {
+  margin: 0.25rem 0 0;
+}
+
+.bar-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(32px, 1fr));
+  gap: 0.7rem;
+  align-items: end;
+  margin-top: 1.5rem;
+  min-height: 230px;
+}
+
+.bar-column {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  align-items: end;
+}
+
+.bar-track {
+  width: 100%;
+  max-width: 46px;
+  height: 170px;
+  display: flex;
+  align-items: end;
+  border-radius: 999px;
+  background: #f2f4f7;
+  overflow: hidden;
+}
+
+.bar-fill {
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #528bff, #175cd3);
+}
+
+.bar-column strong {
+  color: #344054;
+  font-size: 0.8rem;
+}
+
+.bar-column span {
+  color: #667085;
+  font-size: 0.78rem;
+}

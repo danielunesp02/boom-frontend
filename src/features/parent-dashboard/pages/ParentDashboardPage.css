@@ -1,0 +1,26 @@
+.parent-dashboard {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.dashboard-skeleton,
+.dashboard-error {
+  padding: 2rem;
+}
+
+.dashboard-error h2 {
+  margin: 0;
+}
+
+.dashboard-error p {
+  color: #667085;
+}
+
+.dashboard-error button {
+  border: 0;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  background: #175cd3;
+  color: #fff;
+  cursor: pointer;
+}

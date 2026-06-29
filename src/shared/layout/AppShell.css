@@ -1,0 +1,72 @@
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.app-sidebar {
+  display: none;
+}
+
+.app-main {
+  padding: 1.25rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  background: #101828;
+  color: #fff;
+  font-weight: 800;
+}
+
+.brand span {
+  display: block;
+  color: #98a2b3;
+  font-size: 0.78rem;
+}
+
+.nav-list {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.nav-item {
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  color: #475467;
+  text-decoration: none;
+}
+
+.nav-item-active {
+  background: #eef4ff;
+  color: #175cd3;
+  font-weight: 700;
+}
+
+@media (min-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 260px 1fr;
+  }
+
+  .app-sidebar {
+    display: block;
+    padding: 1.25rem;
+    border-right: 1px solid rgba(130, 145, 170, 0.2);
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .app-main {
+    padding: 2rem;
+  }
+}

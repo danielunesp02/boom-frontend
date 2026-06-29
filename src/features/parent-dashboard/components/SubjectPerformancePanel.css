@@ -1,0 +1,32 @@
+.subject-panel p {
+  margin: 0.25rem 0 0;
+}
+
+.subject-list {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.25rem;
+}
+
+.subject-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(130, 145, 170, 0.18);
+  border-radius: 18px;
+  background: #fcfcfd;
+}
+
+.subject-row span {
+  display: block;
+  margin-top: 0.25rem;
+  color: #667085;
+  font-size: 0.86rem;
+}
+
+.subject-row-right {
+  display: grid;
+  justify-items: end;
+  gap: 0.35rem;
+}

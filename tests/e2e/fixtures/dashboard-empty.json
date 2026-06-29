@@ -1,0 +1,23 @@
+{
+  "student": {
+    "id": "student-new",
+    "displayName": "New Student",
+    "gradeLevel": "Lower Secondary",
+    "targetSchoolSystem": "Not configured yet"
+  },
+  "weeklySummary": {
+    "completedActivities": 0,
+    "totalStudyTimeMinutes": 0,
+    "averageAccuracy": 0,
+    "currentStreakDays": 0
+  },
+  "activityHistory": [],
+  "subjectPerformance": [],
+  "learningGaps": [],
+  "currentActionPlan": null,
+  "recentActivitySummaries": [],
+  "emptyState": {
+    "title": "No learning activity yet",
+    "description": "Once the student completes the first activity, this dashboard will show progress, performance and the current action plan."
+  }
+}
