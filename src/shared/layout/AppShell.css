@@ -12,6 +12,12 @@
   padding: 1.25rem;
 }
 
+.app-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.25rem;
+}
+
 .brand {
   display: flex;
   align-items: center;

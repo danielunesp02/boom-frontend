@@ -1,0 +1,21 @@
+.locale-switcher {
+  display: inline-grid;
+  gap: 0.35rem;
+  min-width: 170px;
+}
+
+.locale-switcher span {
+  color: #667085;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.locale-switcher select {
+  width: 100%;
+  border: 1px solid rgba(130, 145, 170, 0.35);
+  border-radius: 14px;
+  padding: 0.7rem 0.8rem;
+  background: #fff;
+  color: #101828;
+  cursor: pointer;
+}

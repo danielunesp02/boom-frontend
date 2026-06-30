@@ -1,7 +1,11 @@
 import type { PropsWithChildren } from 'react';
+import { LocaleSwitcher } from '../i18n/LocaleSwitcher';
+import { useI18n } from '../i18n/useI18n';
 import './AppShell.css';
 
 export function AppShell({ children }: PropsWithChildren) {
+  const { t } = useI18n();
+
   return (
     <div className="app-shell">
       <aside className="app-sidebar" aria-label="Main navigation">
@@ -15,21 +19,26 @@ export function AppShell({ children }: PropsWithChildren) {
 
         <nav className="nav-list">
           <a className="nav-item nav-item-active" href="/">
-            Dashboard
+            {t('app.dashboard')}
           </a>
           <a className="nav-item" href="/">
-            Activities
+            {t('app.activities')}
           </a>
           <a className="nav-item" href="/">
-            Action Plan
+            {t('app.actionPlan')}
           </a>
           <a className="nav-item" href="/">
-            Settings
+            {t('app.settings')}
           </a>
         </nav>
       </aside>
 
-      <main className="app-main">{children}</main>
+      <main className="app-main">
+        <div className="app-topbar">
+          <LocaleSwitcher />
+        </div>
+        {children}
+      </main>
     </div>
   );
 }

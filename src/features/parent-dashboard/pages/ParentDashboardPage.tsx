@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { EmptyState } from '../../../shared/components/EmptyState';
 import { MetricCard } from '../../../shared/components/MetricCard';
+import { useI18n } from '../../../shared/i18n/useI18n';
 import { fetchParentDashboard } from '../api/parentDashboardApi';
 import type { ParentDashboardResponse } from '../types/parentDashboardTypes';
 import { ActivityHistoryChart } from '../components/ActivityHistoryChart';
@@ -12,6 +13,7 @@ import { DashboardHeader } from '../components/DashboardHeader';
 import './ParentDashboardPage.css';
 
 export function ParentDashboardPage() {
+  const { t } = useI18n();
   const [dashboard, setDashboard] = useState<ParentDashboardResponse | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export function ParentDashboardPage() {
       setStatus('ready');
     } catch (error) {
       setStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Unexpected dashboard error.');
+      setErrorMessage(error instanceof Error ? error.message : t('errors.unexpected'));
     }
   }
 
@@ -39,7 +41,7 @@ export function ParentDashboardPage() {
       <div className="parent-dashboard">
         <DashboardHeader loading />
         <section className="dashboard-skeleton card" data-testid="dashboard-loading">
-          Loading dashboard...
+          {t('dashboard.loading')}
         </section>
       </div>
     );
@@ -50,10 +52,10 @@ export function ParentDashboardPage() {
       <div className="parent-dashboard">
         <DashboardHeader />
         <section className="dashboard-error card card-padding" data-testid="dashboard-error">
-          <h2>We could not load the dashboard</h2>
+          <h2>{t('dashboard.errorTitle')}</h2>
           <p>{errorMessage}</p>
           <button type="button" onClick={loadDashboard}>
-            Try again
+            {t('dashboard.tryAgain')}
           </button>
         </section>
       </div>
@@ -69,11 +71,8 @@ export function ParentDashboardPage() {
       <div className="parent-dashboard">
         <DashboardHeader student={dashboard.student} />
         <EmptyState
-          title={dashboard.emptyState?.title ?? 'No learning activity yet'}
-          description={
-            dashboard.emptyState?.description ??
-            'Once the student completes the first activity, this dashboard will show progress.'
-          }
+          title={dashboard.emptyState?.title ?? t('dashboard.noActivityTitle')}
+          description={dashboard.emptyState?.description ?? t('dashboard.noActivityDescription')}
           testId="dashboard-empty-state"
         />
       </div>
@@ -86,27 +85,27 @@ export function ParentDashboardPage() {
 
       <section className="grid-4" aria-label="Weekly summary">
         <MetricCard
-          label="Completed activities"
+          label={t('dashboard.completedActivities')}
           value={`${dashboard.weeklySummary.completedActivities}`}
-          detail="This week"
+          detail={t('dashboard.completedActivitiesDetail')}
           testId="metric-completed-activities"
         />
         <MetricCard
-          label="Study time"
-          value={`${dashboard.weeklySummary.totalStudyTimeMinutes} min`}
-          detail="Total focused time"
+          label={t('dashboard.studyTime')}
+          value={`${dashboard.weeklySummary.totalStudyTimeMinutes} ${t('dashboard.minutesShort')}`}
+          detail={t('dashboard.studyTimeDetail')}
           testId="metric-study-time"
         />
         <MetricCard
-          label="Average accuracy"
+          label={t('dashboard.averageAccuracy')}
           value={`${dashboard.weeklySummary.averageAccuracy}%`}
-          detail="Across completed activities"
+          detail={t('dashboard.averageAccuracyDetail')}
           testId="metric-average-accuracy"
         />
         <MetricCard
-          label="Current streak"
-          value={`${dashboard.weeklySummary.currentStreakDays} days`}
-          detail="Learning rhythm"
+          label={t('dashboard.currentStreak')}
+          value={`${dashboard.weeklySummary.currentStreakDays} ${t('dashboard.days')}`}
+          detail={t('dashboard.currentStreakDetail')}
           testId="metric-current-streak"
         />
       </section>
