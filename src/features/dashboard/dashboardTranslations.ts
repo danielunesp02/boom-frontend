@@ -2,18 +2,60 @@ import type { DashboardPeriodPreset } from "./dashboardTypes";
 
 export type DashboardLocale = "pt-BR" | "en-US";
 
-export function resolveDashboardLocale(locale?: string | null): DashboardLocale {
-  if (!locale) return "pt-BR";
-  return locale.toLowerCase().startsWith("en") ? "en-US" : "pt-BR";
-}
+type DashboardEnumKey =
+  | "IMPROVING"
+  | "STABLE"
+  | "DECLINING"
+  | "MEDIUM"
+  | "LOW"
+  | "HIGH"
+  | "IN_PROGRESS"
+  | "OPEN"
+  | "COMPLETED"
+  | "PENDING"
+  | "ON_TRACK"
+  | "ATTENTION";
 
-export function getDashboardTranslations(locale?: string | null) {
-  return messages[resolveDashboardLocale(locale)];
-}
+export type DashboardTranslations = {
+  pageEyebrow: string;
+  pageTitleSuffix: string;
+  loading: string;
+  loadError: string;
+  period: {
+    ariaLabel: string;
+    label: string;
+    presets: Record<DashboardPeriodPreset, string>;
+    start: string;
+    end: string;
+  };
+  sections: {
+    summary: string;
+    activityHistory: string;
+    activityHistorySubtitle: string;
+    subjectPerformance: string;
+    learningGaps: string;
+    recentActivities: string;
+  };
+  activity: {
+    shortActivities: string;
+    minutesSuffix: string;
+  };
+  gaps: {
+    openFor: string;
+    days: string;
+    practiced: string;
+  };
+  actionPlan: {
+    completed: string;
+    minutesSuffix: string;
+  };
+  labels: {
+    activeGaps: string;
+  };
+  enums: Record<DashboardEnumKey, string>;
+};
 
-export type DashboardTranslations = typeof messages["pt-BR"];
-
-const messages = {
+const messages: Record<DashboardLocale, DashboardTranslations> = {
   "pt-BR": {
     pageEyebrow: "Dashboard dos responsáveis",
     pageTitleSuffix: "progresso",
@@ -28,7 +70,7 @@ const messages = {
         LAST_90_DAYS: "Últimos 90 dias",
         CURRENT_MONTH: "Mês atual",
         CUSTOM: "Período customizado",
-      } satisfies Record<DashboardPeriodPreset, string>,
+      },
       start: "Início",
       end: "Fim",
     },
@@ -85,7 +127,7 @@ const messages = {
         LAST_90_DAYS: "Last 90 days",
         CURRENT_MONTH: "Current month",
         CUSTOM: "Custom range",
-      } satisfies Record<DashboardPeriodPreset, string>,
+      },
       start: "Start",
       end: "End",
     },
@@ -128,9 +170,21 @@ const messages = {
       ATTENTION: "Attention",
     },
   },
-} as const;
+};
 
-export function enumLabel(translations: DashboardTranslations, value: string | null | undefined): string {
+export function resolveDashboardLocale(locale?: string | null): DashboardLocale {
+  if (!locale) return "pt-BR";
+  return locale.toLowerCase().startsWith("en") ? "en-US" : "pt-BR";
+}
+
+export function getDashboardTranslations(locale?: string | null): DashboardTranslations {
+  return messages[resolveDashboardLocale(locale)];
+}
+
+export function enumLabel(
+  translations: DashboardTranslations,
+  value: string | null | undefined,
+): string {
   if (!value) return "";
-  return translations.enums[value as keyof DashboardTranslations["enums"]] ?? value;
+  return translations.enums[value as DashboardEnumKey] ?? value;
 }

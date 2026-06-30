@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { CompactMetricGrid } from "./CompactMetricGrid";
 import { DashboardPeriodFilter, type DashboardPeriodState } from "./DashboardPeriodFilter";
 import { getParentDashboard } from "./dashboardApi";
 import type { ParentDashboard } from "./dashboardTypes";
+import { getDashboardTranslations } from "./dashboardTranslations";
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -14,13 +15,10 @@ function daysAgoIso(days: number) {
   return date.toISOString().slice(0, 10);
 }
 
-/**
- * Example only.
- *
- * Copy the period state, filter, API query and CompactMetricGrid
- * into the existing ParentDashboardPage instead of replacing the page blindly.
- */
 export function ParentDashboardPeriodExample() {
+  const locale = localStorage.getItem("boom.user.locale") ?? "pt-BR";
+  const translations = getDashboardTranslations(locale);
+
   const [period, setPeriod] = useState<DashboardPeriodState>({
     periodPreset: "LAST_30_DAYS",
     startDate: daysAgoIso(29),
@@ -28,34 +26,20 @@ export function ParentDashboardPeriodExample() {
   });
 
   const [dashboard, setDashboard] = useState<ParentDashboard | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const requestKey = useMemo(
-    () => `${period.periodPreset}:${period.startDate}:${period.endDate}`,
-    [period],
-  );
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadDashboard() {
-      setIsLoading(true);
+      const data = await getParentDashboard({
+        periodPreset: period.periodPreset,
+        startDate: period.startDate,
+        endDate: period.endDate,
+        locale,
+      });
 
-      try {
-        const data = await getParentDashboard({
-          periodPreset: period.periodPreset,
-          startDate: period.startDate,
-          endDate: period.endDate,
-          locale: localStorage.getItem("boom.user.locale") ?? "pt-BR",
-        });
-
-        if (!cancelled) {
-          setDashboard(data);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+      if (!cancelled) {
+        setDashboard(data);
       }
     }
 
@@ -64,20 +48,19 @@ export function ParentDashboardPeriodExample() {
     return () => {
       cancelled = true;
     };
-  }, [requestKey, period]);
+  }, [period.periodPreset, period.startDate, period.endDate, locale]);
 
   return (
-    <>
-      <DashboardPeriodFilter value={period} onChange={setPeriod} />
-
-      {isLoading && <div>Loading...</div>}
+    <main className="dashboard-page">
+      <DashboardPeriodFilter value={period} onChange={setPeriod} translations={translations} />
 
       {dashboard && (
         <CompactMetricGrid
           metrics={dashboard.metrics}
           comparisonLabel={dashboard.selectedPeriod.comparisonLabel}
+          translations={translations}
         />
       )}
-    </>
+    </main>
   );
 }
