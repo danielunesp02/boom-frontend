@@ -9,25 +9,35 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { defineConfig, devices } from '@playwright/test';
+var _a;
+import { defineConfig, devices } from "@playwright/test";
+var frontendBaseUrl = (_a = process.env.PLAYWRIGHT_BASE_URL) !== null && _a !== void 0 ? _a : "http://localhost:5173";
 export default defineConfig({
-    testDir: './tests/e2e',
+    testDir: "./e2e",
+    timeout: 45000,
+    expect: {
+        timeout: 10000,
+    },
     fullyParallel: false,
-    reporter: [['html'], ['list']],
+    retries: process.env.CI ? 2 : 0,
+    workers: 1,
+    reporter: [["html"], ["list"]],
     use: {
-        baseURL: 'http://127.0.0.1:5173',
-        trace: 'on-first-retry'
+        baseURL: frontendBaseUrl,
+        trace: "on-first-retry",
+        screenshot: "only-on-failure",
+        video: "retain-on-failure",
     },
     webServer: {
-        command: 'npm run dev -- --host 127.0.0.1',
-        url: 'http://127.0.0.1:5173',
+        command: "npm run dev -- --host 127.0.0.1",
+        url: frontendBaseUrl,
         reuseExistingServer: true,
-        timeout: 120000
+        timeout: 120000,
     },
     projects: [
         {
-            name: 'chromium',
-            use: __assign({}, devices['Desktop Chrome'])
-        }
-    ]
+            name: "chromium",
+            use: __assign({}, devices["Desktop Chrome"]),
+        },
+    ],
 });

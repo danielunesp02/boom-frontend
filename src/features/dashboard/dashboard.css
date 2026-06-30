@@ -324,4 +324,51 @@
     grid-template-columns: 1fr;
   }
 
+  .subject-performance-list {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .subject-performance-item {
+    display: grid;
+    gap: 6px;
+    padding: 14px;
+    border: 1px solid #e3e6ef;
+    border-radius: 16px;
+    background: #ffffff;
+  }
+
+  .subject-performance-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .subject-performance-main strong {
+    color: #101828;
+    font-size: 0.98rem;
+  }
+
+  .subject-performance-score {
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .subject-performance-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #667085;
+    font-size: 0.9rem;
+  }
+
+  .subject-performance-gaps {
+    color: #475467;
+    font-size: 0.88rem;
+  }
+
 }

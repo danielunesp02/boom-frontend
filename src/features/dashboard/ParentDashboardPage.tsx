@@ -156,18 +156,26 @@ export function ParentDashboardPage() {
 
             <article className="dashboard-panel">
               <h2>{translations.sections.subjectPerformance}</h2>
-              <div className="subject-list">
+              <div className="subject-performance-list">
                 {dashboard.subjectPerformance.map((subject) => (
-                  <div key={subject.subjectId} className="subject-item">
-                    <strong>{subject.subjectName}</strong>
-                    <span>
-                      {subject.accuracy}% · {subject.studyTimeMinutes}
-                      {translations.activity.minutesSuffix} · {enumLabel(translations, subject.trend)}
-                    </span>
-                    <small>
-                      {subject.activeGapCount} {translations.labels.activeGaps}
-                    </small>
-                  </div>
+                    <li className="subject-performance-item" key={subject.subjectId}>
+                      <div className="subject-performance-main">
+                        <strong>{subject.subjectName}</strong>
+                        <span className="subject-performance-score">{subject.accuracy}%</span>
+                      </div>
+
+                      <div className="subject-performance-meta">
+      <span>
+        {subject.studyTimeMinutes}
+        {translations.activity.minutesSuffix}
+      </span>
+                        <span>·</span>
+                        <span>{enumLabel(translations, subject.trend)}</span>
+                      </div>
+
+                      <div className="subject-performance-gaps">
+                        {subject.activeGapCount} {translations.labels.activeGaps}                      </div>
+                    </li>
                 ))}
               </div>
             </article>

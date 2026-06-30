@@ -1,6 +1,7 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
 const password = "BoomTest123!";
+const backendBaseUrl = "http://localhost:8080";
 
 function uniqueSuffix() {
   return `${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(-9);
@@ -10,6 +11,44 @@ async function setLocale(page: Page, locale: "pt-BR" | "en-US") {
   await page.addInitScript((value) => {
     window.localStorage.setItem("boom.user.locale", value);
   }, locale);
+}
+
+async function getBoomSessionCookie(page: Page): Promise<string> {
+  await expect
+      .poll(async () => {
+        const cookies = await page.context().cookies();
+        return cookies.find((cookie) => cookie.name === "BOOM_SESSION")?.value ?? null;
+      }, {
+        message: "BOOM_SESSION cookie should be available after login",
+        timeout: 10_000,
+      })
+      .not.toBeNull();
+
+  const cookies = await page.context().cookies();
+  const sessionCookie = cookies.find((cookie) => cookie.name === "BOOM_SESSION");
+
+  if (!sessionCookie?.value) {
+    throw new Error("BOOM_SESSION cookie was not found after login.");
+  }
+
+  return sessionCookie.value;
+}
+
+async function seedHelenaForCurrentSession(page: Page, request: APIRequestContext) {
+  const boomSession = await getBoomSessionCookie(page);
+
+  const response = await request.post(`${backendBaseUrl}/api/v1/dev/seed/helena`, {
+    headers: {
+      Cookie: `BOOM_SESSION=${boomSession}`,
+    },
+  });
+
+  const body = await response.text();
+
+  expect(
+      response.ok(),
+      `Seed failed with ${response.status()}: ${body}`,
+  ).toBeTruthy();
 }
 
 async function fillSignupForm(page: Page) {
@@ -109,7 +148,6 @@ test.describe("Authentication UI", () => {
       password,
     };
 
-    // First signup succeeds.
     await page.goto("/");
     await page.getByRole("button", { name: "Create account" }).click();
 
@@ -119,7 +157,6 @@ test.describe("Authentication UI", () => {
 
     await expect(page.getByRole("heading", { name: "Verify phone" })).toBeVisible();
 
-    // Clear browser state and try the exact same signup again.
     await context.clearCookies();
 
     await page.goto("/");
@@ -148,7 +185,7 @@ test.describe("Authentication UI", () => {
     await expect(page.getByLabel("Verification code")).toBeVisible();
   });
 
-  test("can complete signup, verify phone, login, see dashboard, and logout", async ({ page }) => {
+  test("can complete signup, verify phone, login, see dashboard, and logout", async ({ page, request }) => {
     await setLocale(page, "en-US");
     await page.goto("/");
 
@@ -177,11 +214,25 @@ test.describe("Authentication UI", () => {
 
     await page.getByLabel("Username or email").fill(signup.username);
     await page.getByLabel("Password").fill(signup.password);
+    const loginResponsePromise = page.waitForResponse((response) =>
+        response.url().includes("/api/v1/auth/login") &&
+        response.request().method() === "POST",
+    );
 
     await page.getByRole("button", { name: "Sign in" }).click();
 
+    const loginResponse = await loginResponsePromise;
+
+    expect(loginResponse.ok()).toBeTruthy();
+
+    await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
+
+    await seedHelenaForCurrentSession(page, request);
+
+    await page.reload();
+
     await expect(page.getByText("Parent dashboard")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Helena progress" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Helena.*progress|Helena progress/ })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Summary" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
 
