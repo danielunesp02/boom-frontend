@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { EmptyState } from '../../../shared/components/EmptyState';
 import { MetricCard } from '../../../shared/components/MetricCard';
 import { useI18n } from '../../../shared/i18n/useI18n';
@@ -13,28 +13,28 @@ import { DashboardHeader } from '../components/DashboardHeader';
 import './ParentDashboardPage.css';
 
 export function ParentDashboardPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [dashboard, setDashboard] = useState<ParentDashboardResponse | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  async function loadDashboard() {
+  const loadDashboard = useCallback(async () => {
     setStatus('loading');
     setErrorMessage(null);
 
     try {
-      const data = await fetchParentDashboard();
+      const data = await fetchParentDashboard(locale);
       setDashboard(data);
       setStatus('ready');
     } catch (error) {
       setStatus('error');
       setErrorMessage(error instanceof Error ? error.message : t('errors.unexpected'));
     }
-  }
+  }, [locale, t]);
 
   useEffect(() => {
     void loadDashboard();
-  }, []);
+  }, [loadDashboard]);
 
   if (status === 'loading') {
     return (

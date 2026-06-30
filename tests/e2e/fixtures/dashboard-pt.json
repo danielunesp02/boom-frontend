@@ -1,0 +1,122 @@
+{
+  "student": {
+    "id": "student-helena",
+    "displayName": "Helena",
+    "gradeLevel": "Ensino fundamental II",
+    "targetSchoolSystem": "Itália - Scuola Secondaria di Primo Grado"
+  },
+  "weeklySummary": {
+    "completedActivities": 5,
+    "totalStudyTimeMinutes": 130,
+    "averageAccuracy": 76,
+    "currentStreakDays": 3
+  },
+  "activityHistory": [
+    {
+      "date": "2026-06-23",
+      "completedActivities": 1,
+      "accuracy": 68,
+      "studyTimeMinutes": 20
+    },
+    {
+      "date": "2026-06-24",
+      "completedActivities": 1,
+      "accuracy": 72,
+      "studyTimeMinutes": 25
+    },
+    {
+      "date": "2026-06-25",
+      "completedActivities": 0,
+      "accuracy": null,
+      "studyTimeMinutes": 0
+    },
+    {
+      "date": "2026-06-26",
+      "completedActivities": 1,
+      "accuracy": 76,
+      "studyTimeMinutes": 30
+    },
+    {
+      "date": "2026-06-27",
+      "completedActivities": 1,
+      "accuracy": 82,
+      "studyTimeMinutes": 25
+    },
+    {
+      "date": "2026-06-28",
+      "completedActivities": 1,
+      "accuracy": 81,
+      "studyTimeMinutes": 30
+    },
+    {
+      "date": "2026-06-29",
+      "completedActivities": 0,
+      "accuracy": null,
+      "studyTimeMinutes": 0
+    }
+  ],
+  "subjectPerformance": [
+    {
+      "subjectId": "math",
+      "subjectName": "Matemática",
+      "accuracy": 68,
+      "studyTimeMinutes": 55,
+      "trend": "IMPROVING",
+      "activeGapCount": 2
+    },
+    {
+      "subjectId": "english",
+      "subjectName": "Inglês",
+      "accuracy": 84,
+      "studyTimeMinutes": 35,
+      "trend": "STABLE",
+      "activeGapCount": 0
+    }
+  ],
+  "learningGaps": [
+    {
+      "gapId": "gap-fractions",
+      "subjectName": "Matemática",
+      "topicName": "Frações",
+      "skillName": "Frações equivalentes",
+      "severity": "MEDIUM",
+      "status": "IN_PROGRESS",
+      "daysOpen": 6,
+      "practiceTimeMinutes": 45
+    }
+  ],
+  "currentActionPlan": {
+    "actionPlanId": "plan-fractions",
+    "title": "Revisar frações equivalentes",
+    "description": "Praticar comparação visual de frações equivalentes antes de avançar para raciocínio proporcional.",
+    "targetSubject": "Matemática",
+    "targetTopic": "Frações",
+    "targetSkill": "Frações equivalentes",
+    "priority": "MEDIUM",
+    "estimatedEffortMinutes": 45,
+    "progressPercentage": 40,
+    "items": [
+      {
+        "title": "Revisar explicação visual",
+        "expectedDurationMinutes": 10,
+        "status": "COMPLETED"
+      },
+      {
+        "title": "Praticar 10 questões visuais de frações",
+        "expectedDurationMinutes": 20,
+        "status": "IN_PROGRESS"
+      }
+    ]
+  },
+  "recentActivitySummaries": [
+    {
+      "activityId": "act-1",
+      "date": "2026-06-28",
+      "activityTitle": "Prática de frações",
+      "subjectName": "Matemática",
+      "accuracy": 81,
+      "durationMinutes": 30,
+      "summaryText": "Helena melhorou na comparação visual, mas ainda precisa praticar o reconhecimento rápido de frações equivalentes."
+    }
+  ]
+}
