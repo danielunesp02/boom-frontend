@@ -1,7 +1,8 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { AuthLayout } from "./AuthLayout";
 import { friendlyAuthError } from "./authHelpers";
+import { getAuthTranslations, getStoredAuthLocale } from "./authTranslations";
 
 export function LoginPage({
   onSignup,
@@ -10,6 +11,7 @@ export function LoginPage({
   onSignup: () => void;
   onLoggedIn: () => void;
 }) {
+  const translations = useMemo(() => getAuthTranslations(getStoredAuthLocale()), []);
   const { login } = useAuth();
   const [identifier, setIdentifier] = useState("daniel.test");
   const [password, setPassword] = useState("BoomTest123!");
@@ -25,36 +27,36 @@ export function LoginPage({
       await login({ identifier, password });
       onLoggedIn();
     } catch (error) {
-      setErrorMessage(friendlyAuthError(error));
+      setErrorMessage(friendlyAuthError(error, translations));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <AuthLayout title="Sign in" subtitle="Access the parent dashboard.">
+    <AuthLayout title={translations.login.title} subtitle={translations.login.subtitle}>
       <form className="auth-form" onSubmit={handleSubmit}>
         <label>
-          Username or email
+          {translations.login.identifier}
           <input value={identifier} onChange={(event) => setIdentifier(event.target.value)} required />
         </label>
 
         <label>
-          Password
+          {translations.login.password}
           <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
         </label>
 
         {errorMessage && <div className="auth-error">{errorMessage}</div>}
 
         <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Signing in..." : "Sign in"}
+          {isSubmitting ? translations.login.submitting : translations.login.submit}
         </button>
       </form>
 
       <div className="auth-actions">
-        <span>New to Boom?</span>
+        <span>{translations.login.newToBoom}</span>
         <button className="auth-link-button" type="button" onClick={onSignup}>
-          Create account
+          {translations.login.createAccount}
         </button>
       </div>
     </AuthLayout>

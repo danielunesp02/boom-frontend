@@ -1,7 +1,8 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import * as authApi from "./authApi";
 import { AuthLayout } from "./AuthLayout";
 import { friendlyAuthError } from "./authHelpers";
+import { getAuthTranslations, getStoredAuthLocale } from "./authTranslations";
 import type { VerificationState } from "./SignupPage";
 
 export function PhoneVerificationPage({
@@ -13,6 +14,7 @@ export function PhoneVerificationPage({
   onLogin: () => void;
   onVerificationUpdated: (state: VerificationState) => void;
 }) {
+  const translations = useMemo(() => getAuthTranslations(getStoredAuthLocale()), []);
   const [code, setCode] = useState(verification.devVerificationCode ?? "");
   const [devCode, setDevCode] = useState(verification.devVerificationCode ?? null);
   const [message, setMessage] = useState<string | null>(null);
@@ -27,10 +29,10 @@ export function PhoneVerificationPage({
 
     try {
       await authApi.confirmPhoneVerification(verification.guardianId, code);
-      setMessage("Phone verified. You can now sign in.");
+      setMessage(translations.phoneVerification.verifiedMessage);
       window.setTimeout(onLogin, 700);
     } catch (error) {
-      setErrorMessage(friendlyAuthError(error));
+      setErrorMessage(friendlyAuthError(error, translations));
     } finally {
       setIsSubmitting(false);
     }
@@ -46,26 +48,26 @@ export function PhoneVerificationPage({
       setDevCode(response.devVerificationCode ?? null);
       setCode(response.devVerificationCode ?? "");
       onVerificationUpdated({ ...verification, devVerificationCode: response.devVerificationCode });
-      setMessage(response.devVerificationCode ? "New dev code generated." : "Verification code generated.");
+      setMessage(response.devVerificationCode ? translations.phoneVerification.newDevCodeGenerated : translations.phoneVerification.codeGenerated);
     } catch (error) {
-      setErrorMessage(friendlyAuthError(error));
+      setErrorMessage(friendlyAuthError(error, translations));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <AuthLayout title="Verify phone" subtitle="Confirm the phone verification code.">
+    <AuthLayout title={translations.phoneVerification.title} subtitle={translations.phoneVerification.subtitle}>
       {devCode && (
         <div className="auth-dev-code">
-          <span>Dev verification code</span>
+          <span>{translations.phoneVerification.devCodeLabel}</span>
           <strong>{devCode}</strong>
         </div>
       )}
 
       <form className="auth-form" onSubmit={confirm}>
         <label>
-          Verification code
+          {translations.phoneVerification.code}
           <input value={code} onChange={(event) => setCode(event.target.value)} required />
         </label>
 
@@ -73,16 +75,16 @@ export function PhoneVerificationPage({
         {errorMessage && <div className="auth-error">{errorMessage}</div>}
 
         <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Verifying..." : "Verify phone"}
+          {isSubmitting ? translations.phoneVerification.submitting : translations.phoneVerification.submit}
         </button>
       </form>
 
       <div className="auth-actions">
         <button className="auth-link-button" type="button" onClick={generateNewCode} disabled={isSubmitting}>
-          Generate new code
+          {translations.phoneVerification.generateNewCode}
         </button>
         <button className="auth-link-button" type="button" onClick={onLogin}>
-          Back to login
+          {translations.phoneVerification.backToLogin}
         </button>
       </div>
     </AuthLayout>

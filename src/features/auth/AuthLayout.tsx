@@ -1,3 +1,4 @@
+import { getAuthTranslations, getStoredAuthLocale } from "./authTranslations";
 import "./auth.css";
 
 export function AuthLayout({
@@ -9,14 +10,16 @@ export function AuthLayout({
   subtitle: string;
   children: React.ReactNode;
 }) {
+  const translations = getAuthTranslations(getStoredAuthLocale());
+
   return (
     <main className="auth-page">
       <section className="auth-card">
         <div className="auth-brand">
           <span className="auth-logo">B</span>
           <div>
-            <strong>Boom</strong>
-            <div>Learning platform</div>
+            <strong>{translations.brand.productName}</strong>
+            <div>{translations.brand.subtitle}</div>
           </div>
         </div>
 

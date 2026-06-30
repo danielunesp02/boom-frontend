@@ -1,7 +1,8 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import * as authApi from "./authApi";
 import { AuthLayout } from "./AuthLayout";
-import { friendlyAuthError } from "./authHelpers";
+import { createDevSignupDefaults, friendlyAuthError } from "./authHelpers";
+import { getAuthTranslations, getStoredAuthLocale } from "./authTranslations";
 
 export type VerificationState = {
   guardianId: string;
@@ -16,15 +17,17 @@ export function SignupPage({
   onLogin: () => void;
   onVerificationRequired: (state: VerificationState) => void;
 }) {
-  const suffix = Math.floor(Math.random() * 10000);
-  const [displayName, setDisplayName] = useState("Daniel Bevilacqua");
-  const [username, setUsername] = useState(`daniel.test${suffix}`);
-  const [email, setEmail] = useState(`daniel.test${suffix}@boom.local`);
-  const [phoneNumber, setPhoneNumber] = useState("+5511999999999");
-  const [country, setCountry] = useState("BR");
-  const [documentType, setDocumentType] = useState("CPF");
-  const [documentNumber, setDocumentNumber] = useState(`1234567${suffix}`.slice(0, 11));
-  const [password, setPassword] = useState("BoomTest123!");
+  const translations = useMemo(() => getAuthTranslations(getStoredAuthLocale()), []);
+  const defaults = useMemo(() => createDevSignupDefaults(), []);
+
+  const [displayName, setDisplayName] = useState(defaults.displayName);
+  const [username, setUsername] = useState(defaults.username);
+  const [email, setEmail] = useState(defaults.email);
+  const [phoneNumber, setPhoneNumber] = useState(defaults.phoneNumber);
+  const [country, setCountry] = useState(defaults.country);
+  const [documentType, setDocumentType] = useState(defaults.documentType);
+  const [documentNumber, setDocumentNumber] = useState(defaults.documentNumber);
+  const [password, setPassword] = useState(defaults.password);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,34 +54,36 @@ export function SignupPage({
         devVerificationCode: response.devVerificationCode,
       });
     } catch (error) {
-      setErrorMessage(friendlyAuthError(error));
+      setErrorMessage(friendlyAuthError(error, translations));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <AuthLayout title="Create guardian account" subtitle="Create the responsible adult account.">
+    <AuthLayout title={translations.signup.title} subtitle={translations.signup.subtitle}>
       <form className="auth-form auth-form-grid" onSubmit={handleSubmit}>
-        <label>Display name<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} required /></label>
-        <label>Username<input value={username} onChange={(event) => setUsername(event.target.value)} required /></label>
-        <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-        <label>Phone<input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} required /></label>
-        <label>Country<input value={country} onChange={(event) => setCountry(event.target.value)} required /></label>
-        <label>Document type<input value={documentType} onChange={(event) => setDocumentType(event.target.value)} required /></label>
-        <label>Document number<input value={documentNumber} onChange={(event) => setDocumentNumber(event.target.value)} required /></label>
-        <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+        <label>{translations.signup.displayName}<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} required /></label>
+        <label>{translations.signup.username}<input value={username} onChange={(event) => setUsername(event.target.value)} required /></label>
+        <label>{translations.signup.email}<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
+        <label>{translations.signup.phone}<input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} required /></label>
+        <label>{translations.signup.country}<input value={country} onChange={(event) => setCountry(event.target.value)} required /></label>
+        <label>{translations.signup.documentType}<input value={documentType} onChange={(event) => setDocumentType(event.target.value)} required /></label>
+        <label>{translations.signup.documentNumber}<input value={documentNumber} onChange={(event) => setDocumentNumber(event.target.value)} required /></label>
+        <label>{translations.signup.password}<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
 
         {errorMessage && <div className="auth-error auth-form-full">{errorMessage}</div>}
 
         <button className="auth-form-full" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Creating..." : "Create account"}
+          {isSubmitting ? translations.signup.submitting : translations.signup.submit}
         </button>
       </form>
 
       <div className="auth-actions">
-        <span>Already have an account?</span>
-        <button className="auth-link-button" type="button" onClick={onLogin}>Sign in</button>
+        <span>{translations.signup.alreadyHaveAccount}</span>
+        <button className="auth-link-button" type="button" onClick={onLogin}>
+          {translations.signup.signIn}
+        </button>
       </div>
     </AuthLayout>
   );
