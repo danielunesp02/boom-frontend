@@ -1,243 +1,406 @@
 import { useEffect, useMemo, useState } from "react";
-import { CompactMetricGrid } from "./CompactMetricGrid";
-import { DashboardPeriodFilter, type DashboardPeriodState } from "./DashboardPeriodFilter";
-import { getParentDashboard } from "./dashboardApi";
-import type { ParentDashboard } from "./dashboardTypes";
-import { enumLabel, getDashboardTranslations } from "./dashboardTranslations";
 import "./dashboard.css";
+import { getParentDashboard } from "./dashboardApi";
+import type { DashboardPeriodPreset, ParentDashboard } from "./dashboardTypes";
+import { getDashboardTranslations } from "./dashboardTranslations";
 
-function todayIso() {
-  return new Date().toISOString().slice(0, 10);
+//import { useLocale } from "../../app/locale";
+
+const PRESET_OPTIONS: DashboardPeriodPreset[] = [
+  "LAST_7_DAYS",
+  "LAST_30_DAYS",
+  "LAST_90_DAYS",
+  "CURRENT_MONTH",
+  "CUSTOM",
+];
+
+function formatMinutes(minutes: number) {
+  if (!minutes || minutes <= 0) return "0m";
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  const remaining = minutes % 60;
+  return remaining > 0 ? `${hours}h ${remaining}m` : `${hours}h`;
 }
 
-function daysAgoIso(days: number) {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date.toISOString().slice(0, 10);
+function formatDateLabel(value: string) {
+  return value.slice(5);
 }
 
-function getStoredLocale() {
-  return localStorage.getItem("boom.user.locale") ?? "pt-BR";
+function formatTrendLabel(trend: string) {
+  switch (trend) {
+    case "IMPROVING":
+      return "Improving";
+    case "STABLE":
+      return "Stable";
+    case "DECLINING":
+      return "Declining";
+    default:
+      return trend;
+  }
+}
+
+function formatItemStatus(status: string) {
+  switch (status) {
+    case "COMPLETED":
+      return "Completed";
+    case "IN_PROGRESS":
+      return "In progress";
+    case "PENDING":
+      return "Pending";
+    default:
+      return status;
+  }
+}
+
+function statusClass(status: string) {
+  switch (status) {
+    case "COMPLETED":
+      return "status-completed";
+    case "IN_PROGRESS":
+      return "status-in-progress";
+    case "PENDING":
+      return "status-pending";
+    default:
+      return "";
+  }
+}
+
+function trendClass(trend: string) {
+  switch (trend) {
+    case "IMPROVING":
+      return "trend-improving";
+    case "DECLINING":
+      return "trend-declining";
+    default:
+      return "trend-stable";
+  }
+}
+
+function presetLabel(preset: DashboardPeriodPreset) {
+  switch (preset) {
+    case "LAST_7_DAYS":
+      return "Last 7 days";
+    case "LAST_30_DAYS":
+      return "Last 30 days";
+    case "LAST_90_DAYS":
+      return "Last 90 days";
+    case "CURRENT_MONTH":
+      return "Current month";
+    case "CUSTOM":
+      return "Custom range";
+    default:
+      return preset;
+  }
 }
 
 export function ParentDashboardPage() {
-  const [locale, setLocale] = useState(getStoredLocale);
+  const locale = localStorage.getItem("boom.user.locale") ?? "en-US";
   const translations = getDashboardTranslations(locale);
 
-  const [period, setPeriod] = useState<DashboardPeriodState>({
-    periodPreset: "LAST_30_DAYS",
-    startDate: daysAgoIso(29),
-    endDate: todayIso(),
-  });
-
   const [dashboard, setDashboard] = useState<ParentDashboard | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const requestKey = useMemo(
-    () => `${locale}:${period.periodPreset}:${period.startDate}:${period.endDate}`,
-    [locale, period.periodPreset, period.startDate, period.endDate],
-  );
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      const storedLocale = getStoredLocale();
-      setLocale((current) => (current === storedLocale ? current : storedLocale));
-    }, 400);
-
-    return () => window.clearInterval(interval);
-  }, []);
+  const [periodPreset, setPeriodPreset] = useState<DashboardPeriodPreset>("LAST_30_DAYS");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
+    let active = true;
 
-    async function loadDashboard() {
-      setIsLoading(true);
-      setErrorMessage(null);
-
+    async function load() {
       try {
-        const data = await getParentDashboard({
-          periodPreset: period.periodPreset,
-          startDate: period.startDate,
-          endDate: period.endDate,
+        setLoading(true);
+        setError(null);
+
+        const result = await getParentDashboard({
+          periodPreset,
+          startDate: periodPreset === "CUSTOM" ? startDate || undefined : undefined,
+          endDate: periodPreset === "CUSTOM" ? endDate || undefined : undefined,
           locale,
         });
 
-        if (!cancelled) {
-          setDashboard(data);
-        }
-      } catch (error) {
-        console.error("Dashboard load failed", error);
-
-        if (!cancelled) {
-          setErrorMessage(translations.loadError);
-        }
+        if (!active) return;
+        setDashboard(result);
+      } catch (err) {
+        if (!active) return;
+        setError("Não foi possível carregar o dashboard");
       } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+        if (active) setLoading(false);
       }
     }
 
-    void loadDashboard();
+    load();
 
     return () => {
-      cancelled = true;
+      active = false;
     };
-  }, [requestKey, locale, period.periodPreset, period.startDate, period.endDate, translations.loadError]);
+  }, [periodPreset, startDate, endDate, locale]);
+
+  const maxStudyTime = useMemo(() => {
+    if (!dashboard?.activityHistory?.length) return 1;
+    return Math.max(
+        ...dashboard.activityHistory.map((item) => item.studyTimeMinutes ?? 0),
+        1,
+    );
+  }, [dashboard]);
+
+  if (loading) {
+    return (
+        <main className="dashboard-page">
+          <div className="dashboard-state-card">Loading dashboard...</div>
+        </main>
+    );
+  }
+
+  if (error || !dashboard) {
+    return (
+        <main className="dashboard-page">
+          <div className="dashboard-state-card dashboard-state-error">
+            {error ?? "Não foi possível carregar o dashboard"}
+          </div>
+        </main>
+    );
+  }
 
   return (
-    <main className="dashboard-page">
-      <header className="dashboard-filtered-header">
-        <div>
-          <span className="dashboard-eyebrow">{translations.pageEyebrow}</span>
-          <h1>
-            {dashboard?.student.displayName ?? "Student"} {translations.pageTitleSuffix}
-          </h1>
-          {dashboard?.selectedPeriod && <p>{dashboard.selectedPeriod.label}</p>}
-        </div>
+      <main className="dashboard-page">
+        <header className="dashboard-header">
+          <div>
+            <span className="dashboard-eyebrow">Parent dashboard</span>
+            <h1>{dashboard.student.displayName} progress</h1>
+            <p className="dashboard-subtitle">
+              {dashboard.student.gradeLevel} • {dashboard.student.targetSchoolSystem}
+            </p>
+          </div>
 
-        <DashboardPeriodFilter value={period} onChange={setPeriod} translations={translations} />
-      </header>
+          <div className="dashboard-period-toolbar">
+            <div className="dashboard-period-field">
+              <label htmlFor="periodPreset">Period</label>
+              <select
+                  id="periodPreset"
+                  value={periodPreset}
+                  onChange={(event) => setPeriodPreset(event.target.value as DashboardPeriodPreset)}
+              >
+                {PRESET_OPTIONS.map((preset) => (
+                    <option key={preset} value={preset}>
+                      {presetLabel(preset)}
+                    </option>
+                ))}
+              </select>
+            </div>
 
-      {isLoading && <div className="dashboard-state-card">{translations.loading}</div>}
-      {errorMessage && <div className="dashboard-state-card dashboard-state-error">{errorMessage}</div>}
+            {periodPreset === "CUSTOM" && (
+                <>
+                  <div className="dashboard-period-field">
+                    <label htmlFor="startDate">Start date</label>
+                    <input
+                        id="startDate"
+                        type="date"
+                        value={startDate}
+                        onChange={(event) => setStartDate(event.target.value)}
+                    />
+                  </div>
 
-      {dashboard && !isLoading && !errorMessage && (
-        <>
-          <CompactMetricGrid
-            metrics={dashboard.metrics}
-            comparisonLabel={dashboard.selectedPeriod.comparisonLabel}
-            translations={translations}
-          />
+                  <div className="dashboard-period-field">
+                    <label htmlFor="endDate">End date</label>
+                    <input
+                        id="endDate"
+                        type="date"
+                        value={endDate}
+                        onChange={(event) => setEndDate(event.target.value)}
+                    />
+                  </div>
+                </>
+            )}
+          </div>
+        </header>
 
-          <section className="dashboard-content-grid">
-            <article className="dashboard-panel">
-              <div className="panel-title-row">
-                <h2>{translations.sections.activityHistory}</h2>
-                <span>{translations.sections.activityHistorySubtitle}</span>
+        {dashboard.selectedPeriod && (
+            <section className="dashboard-period-summary">
+              <div>
+                <strong>{dashboard.selectedPeriod.label}</strong>
               </div>
+              <div>{dashboard.selectedPeriod.comparisonLabel}</div>
+            </section>
+        )}
 
-              <div className="activity-chart">
-                {dashboard.activityHistory.map((point) => {
-                  const maxStudyTime = Math.max(
-                    ...dashboard.activityHistory.map((item) => item.studyTimeMinutes),
-                    1,
-                  );
+        {dashboard.metrics?.length ? (
+            <section className="summary-grid">
+              {dashboard.metrics.map((metric) => (
+                  <article key={metric.id} className="summary-card">
+                    <div className="summary-card-header">
+                      <span className="summary-card-label">{metric.label}</span>
+                      <span className={`summary-trend summary-trend-${metric.trendDirection.toLowerCase()}`}>
+                  {metric.trendLabel}
+                </span>
+                    </div>
+                    <strong className="summary-card-value">{metric.value}</strong>
+                    <span className="summary-card-helper">{metric.helperText}</span>
+                  </article>
+              ))}
+            </section>
+        ) : (
+            <section className="summary-grid">
+              <article className="summary-card">
+                <span className="summary-card-label">Completed activities</span>
+                <strong className="summary-card-value">{dashboard.weeklySummary.completedActivities}</strong>
+              </article>
+              <article className="summary-card">
+                <span className="summary-card-label">Study time</span>
+                <strong className="summary-card-value">
+                  {formatMinutes(dashboard.weeklySummary.totalStudyTimeMinutes)}
+                </strong>
+              </article>
+              <article className="summary-card">
+                <span className="summary-card-label">Accuracy</span>
+                <strong className="summary-card-value">{dashboard.weeklySummary.averageAccuracy}%</strong>
+              </article>
+              <article className="summary-card">
+                <span className="summary-card-label">Current streak</span>
+                <strong className="summary-card-value">{dashboard.weeklySummary.currentStreakDays}d</strong>
+              </article>
+            </section>
+        )}
 
-                  const barWidth = Math.max(
-                    6,
-                    Math.round((point.studyTimeMinutes / maxStudyTime) * 100),
-                  );
+        <section className="dashboard-two-column">
+          <article className="dashboard-card">
+            <div className="card-header">
+              <h2>{translations.sections.activityHistory}</h2>
+              <span className="card-header-note">Activities + time</span>
+            </div>
 
-                  return (
-                    <div key={point.date} className="activity-chart-row">
-                      <span className="activity-chart-date">{point.date.slice(5)}</span>
+            <div className="history-list">
+              {dashboard.activityHistory.map((item) => {
+                const width = Math.max((item.studyTimeMinutes / maxStudyTime) * 100, item.studyTimeMinutes > 0 ? 6 : 0);
 
-                      <div className="activity-chart-track">
-                        <div
-                          className="activity-chart-bar"
-                          style={{ width: `${barWidth}%` }}
-                          aria-label={`${point.studyTimeMinutes}${translations.activity.minutesSuffix}`}
-                        />
+                return (
+                    <div key={item.date} className="history-row">
+                      <div className="history-date">{formatDateLabel(item.date)}</div>
+
+                      <div className="history-bar-area">
+                        <div className="history-bar-track">
+                          <div className="history-bar-fill" style={{ width: `${width}%` }} />
+                        </div>
                       </div>
 
-                      <div className="activity-chart-value">
-                        <strong>{point.completedActivities}</strong> {translations.activity.shortActivities} ·{" "}
-                        {point.studyTimeMinutes}
-                        {translations.activity.minutesSuffix}
-                        {point.accuracy !== null && <small> · {point.accuracy}%</small>}
+                      <div className="history-stats">
+                        <strong>{item.completedActivities} act.</strong>
+                        <span>{formatMinutes(item.studyTimeMinutes)}</span>
+                        <span>{item.accuracy != null ? `${item.accuracy}%` : "—"}</span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </article>
+                );
+              })}
+            </div>
+          </article>
 
-            <article className="dashboard-panel">
+          <article className="dashboard-card">
+            <div className="card-header">
               <h2>{translations.sections.subjectPerformance}</h2>
-              <div className="subject-performance-list">
-                {dashboard.subjectPerformance.map((subject) => (
-                    <li className="subject-performance-item" key={subject.subjectId}>
-                      <div className="subject-performance-main">
-                        <strong>{subject.subjectName}</strong>
-                        <span className="subject-performance-score">{subject.accuracy}%</span>
-                      </div>
+            </div>
 
-                      <div className="subject-performance-meta">
-      <span>
-        {subject.studyTimeMinutes}
-        {translations.activity.minutesSuffix}
-      </span>
-                        <span>·</span>
-                        <span>{enumLabel(translations, subject.trend)}</span>
-                      </div>
+            <div className="subject-performance-list">
+              {dashboard.subjectPerformance.map((subject) => (
+                  <div key={subject.subjectId} className="subject-performance-item">
+                    <div className="subject-performance-top">
+                      <strong>{subject.subjectName}</strong>
+                      <span className={`subject-trend-chip ${trendClass(subject.trend)}`}>
+                    {formatTrendLabel(subject.trend)}
+                  </span>
+                    </div>
 
-                      <div className="subject-performance-gaps">
-                        {subject.activeGapCount} {translations.labels.activeGaps}                      </div>
-                    </li>
-                ))}
-              </div>
-            </article>
+                    <div className="subject-performance-metrics">
+                      <span>{subject.accuracy}% accuracy</span>
+                      <span>{formatMinutes(subject.studyTimeMinutes)}</span>
+                      <span>{subject.activeGapCount} active gaps</span>
+                    </div>
+                  </div>
+              ))}
+            </div>
+          </article>
+        </section>
 
-            <article className="dashboard-panel">
+        <section className="dashboard-two-column">
+          <article className="dashboard-card">
+            <div className="card-header">
               <h2>{translations.sections.learningGaps}</h2>
-              <div className="gap-list">
-                {dashboard.learningGaps.map((gap) => (
+            </div>
+
+            <div className="gap-list">
+              {dashboard.learningGaps.map((gap) => (
                   <div key={gap.gapId} className="gap-item">
-                    <strong>{gap.subjectName} · {gap.topicName}</strong>
-                    <span>{gap.skillName}</span>
-                    <p>
-                      {enumLabel(translations, gap.severity)} · {enumLabel(translations, gap.status)} ·{" "}
-                      {translations.gaps.openFor} {gap.daysOpen} {translations.gaps.days} ·{" "}
-                      {gap.practiceTimeMinutes}
-                      {translations.activity.minutesSuffix} {translations.gaps.practiced}
+                    <strong>
+                      {gap.subjectName} • {gap.topicName}
+                    </strong>
+                    <span className="gap-skill">{gap.skillName}</span>
+                    <p className="gap-meta">
+                      {gap.severity} • {gap.status} • open for {gap.daysOpen} days •{" "}
+                      {gap.practiceTimeMinutes}m practiced
                     </p>
                   </div>
-                ))}
-              </div>
-            </article>
+              ))}
+            </div>
+          </article>
 
-            <article className="dashboard-panel">
-              <h2>{translations.sections.recentActivities}</h2>
-              <div className="recent-list">
-                {dashboard.recentActivitySummaries.map((activity) => (
-                  <div key={activity.activityId} className="recent-item">
-                    <strong>{activity.activityTitle}</strong>
-                    <span>
-                      {activity.subjectName} · {activity.accuracy}% · {activity.durationMinutes}
-                      {translations.activity.minutesSuffix}
-                    </span>
+          <article className="dashboard-card">
+            <div className="card-header">
+              <h2>Recent activities</h2>
+            </div>
+
+            <div className="recent-activity-list">
+              {dashboard.recentActivitySummaries.map((activity) => (
+                  <div key={activity.activityId} className="recent-activity-item">
+                    <div className="recent-activity-title-row">
+                      <strong>{activity.activityTitle}</strong>
+                      <span className="recent-activity-meta">
+                    {activity.subjectName} • {activity.accuracy}% • {formatMinutes(activity.durationMinutes)}
+                  </span>
+                    </div>
                     <p>{activity.summaryText}</p>
                   </div>
-                ))}
-              </div>
-            </article>
+              ))}
+            </div>
+          </article>
+        </section>
 
-            <article className="dashboard-panel dashboard-panel-wide">
-              <h2>{dashboard.currentActionPlan.title}</h2>
-              <p>{dashboard.currentActionPlan.description}</p>
+        {dashboard.currentActionPlan && (
+            <section className="dashboard-card action-plan-card">
+              <div className="card-header">
+                <h2>{dashboard.currentActionPlan.title}</h2>
+              </div>
+
+              <p className="action-plan-description">{dashboard.currentActionPlan.description}</p>
 
               <div className="action-plan-meta">
                 <span>{dashboard.currentActionPlan.targetSubject}</span>
                 <span>{dashboard.currentActionPlan.targetTopic}</span>
-                <span>
-                  {dashboard.currentActionPlan.progressPercentage}% {translations.actionPlan.completed}
-                </span>
+                <span>{dashboard.currentActionPlan.targetSkill}</span>
+                <span>{dashboard.currentActionPlan.progressPercentage}% completed</span>
               </div>
 
-              <ul>
+              <div className="action-plan-progress">
+                <div
+                    className="action-plan-progress-fill"
+                    style={{ width: `${dashboard.currentActionPlan.progressPercentage}%` }}
+                />
+              </div>
+
+              <ul className="action-plan-list">
                 {dashboard.currentActionPlan.items.map((item) => (
-                  <li key={item.title}>
-                    {item.title} · {item.expectedDurationMinutes}
-                    {translations.actionPlan.minutesSuffix} · {enumLabel(translations, item.status)}
-                  </li>
+                    <li key={item.title} className="action-plan-item">
+                      <div className="action-plan-item-main">
+                        <strong>{item.title}</strong>
+                        <span>{formatMinutes(item.expectedDurationMinutes)}</span>
+                      </div>
+                      <span className={`action-plan-status ${statusClass(item.status)}`}>
+                  {formatItemStatus(item.status)}
+                </span>
+                    </li>
                 ))}
               </ul>
-            </article>
-          </section>
-        </>
-      )}
-    </main>
+            </section>
+        )}
+      </main>
   );
 }

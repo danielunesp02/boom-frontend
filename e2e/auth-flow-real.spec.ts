@@ -233,9 +233,11 @@ test.describe("Authentication UI", () => {
 
     await expect(page.getByText("Parent dashboard")).toBeVisible();
     await expect(page.getByRole("heading", { name: /Helena.*progress|Helena progress/ })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Summary" })).toBeVisible();
+    await expect(page.getByText("Completed activities")).toBeVisible();
+    await expect(page.getByText("Study time")).toBeVisible();
+    await expect(page.getByText("Accuracy", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Subject performance" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
-
     await page.getByRole("button", { name: "Logout" }).click();
 
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();

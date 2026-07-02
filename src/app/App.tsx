@@ -6,56 +6,63 @@ import { LogoutButton } from "../features/auth/LogoutButton";
 import { PhoneVerificationPage } from "../features/auth/PhoneVerificationPage";
 import { ProtectedRoute } from "../features/auth/ProtectedRoute";
 import { SignupPage, type VerificationState } from "../features/auth/SignupPage";
+import { StudentActivityPlayerPage } from "../features/student-player";
 
 type View = "dashboard" | "login" | "signup" | "verify-phone";
 
 function AppContent() {
-  const { status } = useAuth();
-  const [view, setView] = useState<View>("dashboard");
-  const [verification, setVerification] = useState<VerificationState | null>(null);
+    const { status } = useAuth();
+    const [view, setView] = useState<View>("dashboard");
+    const [verification, setVerification] = useState<VerificationState | null>(null);
 
-  const goLogin = useCallback(() => setView("login"), []);
+    const goLogin = useCallback(() => setView("login"), []);
+    const path = window.location.pathname;
 
-  if (view === "signup") {
+    if (view === "signup") {
+        return (
+            <SignupPage
+                onLogin={goLogin}
+                onVerificationRequired={(state) => {
+                    setVerification(state);
+                    setView("verify-phone");
+                }}
+            />
+        );
+    }
+
+    if (view === "verify-phone" && verification) {
+        return (
+            <PhoneVerificationPage
+                verification={verification}
+                onLogin={goLogin}
+                onVerificationUpdated={setVerification}
+            />
+        );
+    }
+
+    if (view === "login" || status === "anonymous") {
+        return <LoginPage onSignup={() => setView("signup")} onLoggedIn={() => setView("dashboard")} />;
+    }
+
     return (
-      <SignupPage
-        onLogin={goLogin}
-        onVerificationRequired={(state) => {
-          setVerification(state);
-          setView("verify-phone");
-        }}
-      />
+        <ProtectedRoute onAnonymous={goLogin}>
+            <LogoutButton onLoggedOut={goLogin} />
+
+            {path === "/student/activity" ? (
+                <StudentActivityPlayerPage />
+            ) : (
+                <ParentDashboardPage />
+            )}
+        </ProtectedRoute>
     );
-  }
-
-  if (view === "verify-phone" && verification) {
-    return (
-      <PhoneVerificationPage
-        verification={verification}
-        onLogin={goLogin}
-        onVerificationUpdated={setVerification}
-      />
-    );
-  }
-
-  if (view === "login" || status === "anonymous") {
-    return <LoginPage onSignup={() => setView("signup")} onLoggedIn={() => setView("dashboard")} />;
-  }
-
-  return (
-    <ProtectedRoute onAnonymous={goLogin}>
-      <LogoutButton onLoggedOut={goLogin} />
-      <ParentDashboardPage />
-    </ProtectedRoute>
-  );
 }
 
 export function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
+    );
 }
 
 export default App;
