@@ -61,11 +61,11 @@ export function StudentActivityPlayerPage(props: StudentActivityPlayerPageProps)
   const [player, setPlayer] = useState<StudentActivityPlayerResponse | null>(null);
   const [attempt, setAttempt] = useState<AssessmentAttemptResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, StudentPlayerOption>>({});
   const [answerResults, setAnswerResults] = useState<Record<string, AnswerSubmissionResponse>>({});
   const [showHint, setShowHint] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
 
   const questionStartedAtRef = useRef(Date.now());
 
@@ -138,6 +138,7 @@ export function StudentActivityPlayerPage(props: StudentActivityPlayerPageProps)
 
     try {
       setQuestionState("submitting");
+      setError(null);
 
       const response = await submitAttemptAnswer(attempt.attemptId, {
         questionId: currentQuestion.questionId,
@@ -156,20 +157,30 @@ export function StudentActivityPlayerPage(props: StudentActivityPlayerPageProps)
       setError(err instanceof Error ? err.message : "Could not submit answer.");
     }
   }
-
   async function goNext() {
     if (!player || !attempt) return;
 
     setShowHint(false);
+    setError(null);
 
     if (currentIndex >= player.questions.length - 1) {
       try {
+        setIsCompleting(true);
+
         const completed = await completeAssessmentAttempt(attempt.attemptId);
+
+        if (completed.status !== "COMPLETED") {
+          throw new Error(`Attempt was not completed. Current status: ${completed.status}`);
+        }
+
         setAttempt(completed);
         setState("completed");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not complete attempt.");
+      } finally {
+        setIsCompleting(false);
       }
+
       return;
     }
 
@@ -394,9 +405,14 @@ export function StudentActivityPlayerPage(props: StudentActivityPlayerPageProps)
               {questionState === "submitting" ? "Checking..." : "Check answer"}
             </button>
           ) : (
-            <button className="student-player-primary-button" type="button" onClick={goNext}>
-              {isLastQuestion ? "Finish" : "Next"}
-            </button>
+              <button
+                  className="student-player-primary-button"
+                  type="button"
+                  onClick={goNext}
+                  disabled={isCompleting}
+              >
+                {isCompleting ? "Finishing..." : isLastQuestion ? "Finish" : "Next"}
+              </button>
           )}
         </footer>
       </section>

@@ -1,74 +1,109 @@
 import type {
   AnswerSubmissionResponse,
   AssessmentAttemptResponse,
-  StartAttemptRequest,
   StudentActivityPlayerResponse,
-  SubmitAnswerRequest,
 } from "./studentPlayerTypes";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+const API_BASE_URL = "/api/v1";
 
-async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    credentials: "include",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-    ...init,
-  });
+type AssessmentAttemptRequest = {
+  sourceChannel: "WEB" | "MOBILE" | "TABLET";
+  locale: string;
+};
+
+type AnswerSubmissionRequest = {
+  questionId: string;
+  selectedOptionId: string;
+  timeSpentSeconds: number;
+};
+
+async function parseJsonResponse<T>(response: Response): Promise<T> {
+  const text = await response.text();
 
   if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    throw new Error(`Request failed with ${response.status}: ${body}`);
+    throw new Error(text || `Request failed with status ${response.status}`);
   }
 
-  return response.json() as Promise<T>;
+  return text ? (JSON.parse(text) as T) : ({} as T);
 }
 
-export function getStudentActivityPlayer(
-  studentId: string,
-  activityId: string,
+export async function getStudentActivityPlayer(
+    studentId: string,
+    activityId: string,
 ): Promise<StudentActivityPlayerResponse> {
-  return requestJson<StudentActivityPlayerResponse>(
-    `/api/v1/students/${studentId}/activities/${activityId}/player`,
-    { method: "GET" },
+  const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/activities/${activityId}/player`,
+      {
+        method: "GET",
+        credentials: "include",
+      },
   );
+
+  return parseJsonResponse<StudentActivityPlayerResponse>(response);
 }
 
-export function startAssessmentAttempt(
-  studentId: string,
-  activityId: string,
-  payload: StartAttemptRequest,
+export async function startAssessmentAttempt(
+    studentId: string,
+    activityId: string,
+    payload: AssessmentAttemptRequest,
 ): Promise<AssessmentAttemptResponse> {
-  return requestJson<AssessmentAttemptResponse>(
-    `/api/v1/students/${studentId}/activities/${activityId}/attempts`,
-    {
-      method: "POST",
-      body: JSON.stringify(payload),
-    },
+  const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/activities/${activityId}/attempts`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      },
   );
+
+  return parseJsonResponse<AssessmentAttemptResponse>(response);
 }
 
-export function submitAttemptAnswer(
-  attemptId: string,
-  payload: SubmitAnswerRequest,
+export async function getAssessmentAttempt(
+    attemptId: string,
+): Promise<AssessmentAttemptResponse> {
+  const response = await fetch(`${API_BASE_URL}/attempts/${attemptId}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  return parseJsonResponse<AssessmentAttemptResponse>(response);
+}
+
+export async function submitAttemptAnswer(
+    attemptId: string,
+    payload: AnswerSubmissionRequest,
 ): Promise<AnswerSubmissionResponse> {
-  return requestJson<AnswerSubmissionResponse>(`/api/v1/attempts/${attemptId}/answers`, {
+  const response = await fetch(`${API_BASE_URL}/attempts/${attemptId}/answers`, {
     method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(payload),
   });
+
+  return parseJsonResponse<AnswerSubmissionResponse>(response);
 }
 
-export function completeAssessmentAttempt(attemptId: string): Promise<AssessmentAttemptResponse> {
-  return requestJson<AssessmentAttemptResponse>(`/api/v1/attempts/${attemptId}/complete`, {
+export async function completeAssessmentAttempt(
+    attemptId: string,
+): Promise<AssessmentAttemptResponse> {
+  const response = await fetch(`${API_BASE_URL}/attempts/${attemptId}/complete`, {
     method: "POST",
+    credentials: "include",
   });
-}
 
-export function getAssessmentAttempt(attemptId: string): Promise<AssessmentAttemptResponse> {
-  return requestJson<AssessmentAttemptResponse>(`/api/v1/attempts/${attemptId}`, {
-    method: "GET",
-  });
+  const completedAttempt = await parseJsonResponse<AssessmentAttemptResponse>(response);
+
+  if (completedAttempt.status !== "COMPLETED") {
+    throw new Error(
+        `Attempt was not completed. Expected COMPLETED, received ${completedAttempt.status}`,
+    );
+  }
+
+  return completedAttempt;
 }
