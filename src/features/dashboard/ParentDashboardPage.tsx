@@ -267,7 +267,7 @@ export function ParentDashboardPage() {
           <article className="dashboard-card">
             <div className="card-header">
               <h2>{translations.sections.activityHistory}</h2>
-              <span className="card-header-note">Activities + time</span>
+              <span className="card-header-note">Study time + activities</span>
             </div>
 
             <div className="history-list">
@@ -281,11 +281,19 @@ export function ParentDashboardPage() {
                       <div className="history-bar-area">
                         <div className="history-bar-track">
                           <div className="history-bar-fill" style={{ width: `${width}%` }} />
+                          {item.completedActivities > 0 && (
+                            <span
+                              className="history-activity-badge"
+                              title={`${item.completedActivities} completed activities`}
+                            >
+                              {item.completedActivities}
+                            </span>
+                          )}
                         </div>
                       </div>
 
                       <div className="history-stats">
-                        <strong>{item.completedActivities} act.</strong>
+                        <strong>{item.completedActivities} activities</strong>
                         <span>{formatMinutes(item.studyTimeMinutes)}</span>
                         <span>{item.accuracy != null ? `${item.accuracy}%` : "—"}</span>
                       </div>

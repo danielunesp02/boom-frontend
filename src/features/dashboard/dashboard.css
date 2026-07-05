@@ -500,3 +500,28 @@
     text-align: left;
   }
 }
+
+.history-bar-track {
+  position: relative;
+}
+
+.history-activity-badge {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border: 1px solid rgba(237, 246, 255, 0.28);
+  background: rgba(7, 17, 31, 0.78);
+  color: #edf6ff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+}
