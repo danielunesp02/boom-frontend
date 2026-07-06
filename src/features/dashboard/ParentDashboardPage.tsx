@@ -3,6 +3,7 @@ import "./dashboard.css";
 import { getParentDashboard } from "./dashboardApi";
 import type { DashboardPeriodPreset, ParentDashboard } from "./dashboardTypes";
 import { getDashboardTranslations } from "./dashboardTranslations";
+import { SubjectStrategyPanel } from "./SubjectStrategyPanel";
 
 //import { useLocale } from "../../app/locale";
 
@@ -147,7 +148,7 @@ export function ParentDashboardPage() {
 
   if (loading) {
     return (
-        <main className="dashboard-page">
+      <main className="dashboard-page">
           <div className="dashboard-state-card">Loading dashboard...</div>
         </main>
     );
@@ -224,6 +225,26 @@ export function ParentDashboardPage() {
               <div>{dashboard.selectedPeriod.comparisonLabel}</div>
             </section>
         )}
+
+        <SubjectStrategyPanel studentId={dashboard.student.id} />
+
+        <section className="dashboard-card review-queue-entry-card">
+          <div>
+            <span className="dashboard-eyebrow">Adaptive review</span>
+            <h2>Today's reviews</h2>
+            <p>
+              Open the student's scheduled review queue and start with overdue or high-priority skills.
+            </p>
+          </div>
+
+          <a
+            className="review-queue-entry-button"
+            href={`/student/reviews?studentId=${dashboard.student.id}`}
+          >
+            Open review queue
+          </a>
+        </section>
+
 
         {dashboard.metrics?.length ? (
             <section className="summary-grid">

@@ -850,3 +850,37 @@
   }
 }
 
+
+.review-queue-entry-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.review-queue-entry-card h2 {
+  margin: 4px 0 8px;
+}
+
+.review-queue-entry-card p {
+  margin: 0;
+  color: #6b7280;
+  max-width: 720px;
+}
+
+.review-queue-entry-button {
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  padding: 11px 16px;
+  text-decoration: none;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .review-queue-entry-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
