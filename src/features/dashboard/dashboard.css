@@ -525,3 +525,328 @@
   line-height: 1;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
 }
+
+/* Subject strategy selector and learning curves */
+.subject-strategy-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.subject-strategy-header {
+  align-items: flex-start;
+}
+
+.subject-strategy-subtitle {
+  margin: 8px 0 0;
+  color: #6b7280;
+  max-width: 760px;
+}
+
+.subject-strategy-status {
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.subject-strategy-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.subject-strategy-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.subject-strategy-field span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+.subject-strategy-field select,
+.subject-strategy-field input {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 10px 12px;
+  font-size: 14px;
+  min-width: 0;
+}
+
+.subject-strategy-save {
+  border: 0;
+  border-radius: 10px;
+  background: #111827;
+  color: #ffffff;
+  padding: 11px 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.subject-strategy-save:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.subject-strategy-mode-description,
+.subject-strategy-muted {
+  margin: 0;
+  color: #6b7280;
+}
+
+.subject-strategy-error {
+  margin: 0;
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.subject-strategy-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.subject-strategy-summary div {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #f9fafb;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.subject-strategy-summary span {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.subject-strategy-summary strong {
+  font-size: 18px;
+}
+
+.learning-curve-chart {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #f9fafb;
+  padding: 14px;
+}
+
+.learning-curve-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.learning-curve-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.learning-curve-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.learning-curve-legend .actual {
+  background: #111827;
+}
+
+.learning-curve-legend .expected {
+  background: #7c3aed;
+}
+
+.learning-curve-legend .high {
+  background: #22c55e;
+}
+
+.learning-curve-plot {
+  height: 180px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+
+.learning-curve-week {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.learning-curve-bars {
+  height: 150px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 3px;
+}
+
+.learning-curve-bar {
+  width: 8px;
+  min-height: 2px;
+  border-radius: 999px 999px 0 0;
+  display: inline-block;
+}
+
+.learning-curve-bar.actual {
+  background: #111827;
+}
+
+.learning-curve-bar.expected {
+  background: #7c3aed;
+}
+
+.learning-curve-bar.high {
+  background: #22c55e;
+}
+
+.learning-curve-week-label {
+  text-align: center;
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
+  .subject-strategy-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .subject-strategy-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .learning-curve-plot {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .subject-strategy-grid,
+  .subject-strategy-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+.learning-curve-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.learning-curve-toolbar .learning-curve-legend {
+  margin-bottom: 0;
+}
+
+.learning-curve-type-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.learning-curve-type-selector select {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.learning-curve-line-wrapper {
+  overflow-x: auto;
+}
+
+.learning-curve-line-chart {
+  width: 100%;
+  min-width: 640px;
+  height: 210px;
+  overflow: visible;
+}
+
+.learning-curve-grid-line {
+  stroke: #e5e7eb;
+  stroke-width: 1;
+}
+
+.learning-curve-line {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.learning-curve-line.actual {
+  stroke: #111827;
+}
+
+.learning-curve-line.expected {
+  stroke: #7c3aed;
+}
+
+.learning-curve-line.high {
+  stroke: #22c55e;
+}
+
+.learning-curve-dot {
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+
+.learning-curve-dot.actual {
+  fill: #111827;
+}
+
+.learning-curve-dot.expected {
+  fill: #7c3aed;
+}
+
+.learning-curve-dot.high {
+  fill: #22c55e;
+}
+
+.learning-curve-line-axis {
+  min-width: 640px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 800;
+  margin-top: 8px;
+}
+
+.learning-curve-line-axis span {
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .learning-curve-toolbar {
+    flex-direction: column;
+  }
+}
+
