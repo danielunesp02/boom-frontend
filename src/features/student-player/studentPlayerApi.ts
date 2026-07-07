@@ -107,3 +107,18 @@ export async function completeAssessmentAttempt(
 
   return completedAttempt;
 }
+
+export async function completeReviewQueueItem(
+    studentId: string,
+    reviewQueueId: string,
+): Promise<void> {
+  const response = await fetch(
+      `${API_BASE_URL}/students/${studentId}/review-queue/${reviewQueueId}/complete`,
+      {
+        method: "POST",
+        credentials: "include",
+      },
+  );
+
+  await parseJsonResponse<unknown>(response);
+}
