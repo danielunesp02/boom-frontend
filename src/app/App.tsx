@@ -7,6 +7,7 @@ import { PhoneVerificationPage } from "../features/auth/PhoneVerificationPage";
 import { ProtectedRoute } from "../features/auth/ProtectedRoute";
 import { SignupPage, type VerificationState } from "../features/auth/SignupPage";
 import { StudentActivityPlayerPage } from "../features/student-player";
+import { StudentReviewQueuePage } from "../features/student-review";
 
 type View = "dashboard" | "login" | "signup" | "verify-phone";
 
@@ -50,6 +51,8 @@ function AppContent() {
 
             {path === "/student/activity" ? (
                 <StudentActivityPlayerPage />
+            ) : path === "/student/reviews" ? (
+                <StudentReviewQueuePage />
             ) : (
                 <ParentDashboardPage />
             )}

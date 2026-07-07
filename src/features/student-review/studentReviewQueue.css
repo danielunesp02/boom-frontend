@@ -1,0 +1,248 @@
+.student-review-page {
+  min-height: 100vh;
+  background: #f3f4f6;
+  color: #111827;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.student-review-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.student-review-eyebrow {
+  display: inline-block;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.student-review-header h1,
+.student-review-detail h2 {
+  margin: 0;
+}
+
+.student-review-header p,
+.student-review-detail p {
+  color: #6b7280;
+}
+
+.student-review-dashboard-link {
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  padding: 10px 14px;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.student-review-layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.student-review-list,
+.student-review-detail,
+.student-review-empty,
+.student-review-state {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.student-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.student-review-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.student-review-item.selected {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+.student-review-item button {
+  width: 100%;
+  border: 0;
+  background: #f9fafb;
+  padding: 14px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.student-review-item strong {
+  font-size: 16px;
+}
+
+.student-review-item small,
+.student-review-item span {
+  color: #6b7280;
+}
+
+.student-review-status,
+.student-review-priority {
+  align-self: flex-start;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.status-critical_overdue {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-overdue {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.status-due {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-scheduled {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.priority-critical,
+.priority-high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.priority-medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.priority-low {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.student-review-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.student-review-detail-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.student-review-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.student-review-detail-grid div {
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.student-review-detail-grid span {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.student-review-warning {
+  margin: 0;
+  border-radius: 14px;
+  background: #fff7ed;
+  color: #9a3412;
+  padding: 12px;
+  font-weight: 700;
+}
+
+.student-review-reason {
+  margin: 0;
+}
+
+.student-review-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.student-review-actions button,
+.student-review-state button {
+  border: 0;
+  border-radius: 12px;
+  background: #111827;
+  color: #ffffff;
+  padding: 11px 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.student-review-actions button.secondary {
+  background: #7c3aed;
+}
+
+.student-review-actions button.ghost {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.student-review-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.student-review-error {
+  color: #991b1b;
+}
+
+@media (max-width: 900px) {
+  .student-review-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .student-review-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .student-review-header {
+    flex-direction: column;
+  }
+
+  .student-review-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
