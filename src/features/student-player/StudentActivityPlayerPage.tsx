@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import "../../styles/boomBrand.css";
 import {
   completeAssessmentAttempt,
+  completeReviewQueueItem,
   getStudentActivityPlayer,
   startAssessmentAttempt,
   submitAttemptAnswer,
@@ -55,6 +56,7 @@ function sourceChannelForViewport(): "WEB" | "MOBILE" | "TABLET" {
 export function StudentActivityPlayerPage(props: StudentActivityPlayerPageProps) {
   const studentId = props.studentId ?? getQueryParam("studentId");
   const activityId = props.activityId ?? getQueryParam("activityId");
+  const reviewQueueId = getQueryParam("reviewQueueId");
 
   const [state, setState] = useState<PlayerState>("loading");
   const [questionState, setQuestionState] = useState<QuestionState>("selecting");
@@ -173,6 +175,10 @@ export function StudentActivityPlayerPage(props: StudentActivityPlayerPageProps)
           throw new Error(`Attempt was not completed. Current status: ${completed.status}`);
         }
 
+        if (studentId && reviewQueueId) {
+          await completeReviewQueueItem(studentId, reviewQueueId);
+        }
+
         setAttempt(completed);
         setState("completed");
       } catch (err) {
@@ -200,6 +206,15 @@ export function StudentActivityPlayerPage(props: StudentActivityPlayerPageProps)
 
   function restart() {
     window.location.reload();
+  }
+
+  function continueAfterCompletion() {
+    if (studentId && reviewQueueId) {
+      window.location.href = `/student/reviews?studentId=${studentId}`;
+      return;
+    }
+
+    window.location.href = "/";
   }
 
   if (state === "loading") {
@@ -257,8 +272,12 @@ export function StudentActivityPlayerPage(props: StudentActivityPlayerPageProps)
             <button className="student-player-secondary-button" type="button" onClick={restart}>
               Review again
             </button>
-            <button className="student-player-primary-button" type="button">
-              Continue
+            <button
+              className="student-player-primary-button"
+              type="button"
+              onClick={continueAfterCompletion}
+            >
+              {reviewQueueId ? "Back to review queue" : "Continue"}
             </button>
           </div>
         </section>
