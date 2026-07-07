@@ -8,6 +8,7 @@ import { ProtectedRoute } from "../features/auth/ProtectedRoute";
 import { SignupPage, type VerificationState } from "../features/auth/SignupPage";
 import { StudentActivityPlayerPage } from "../features/student-player";
 import { StudentReviewQueuePage } from "../features/student-review";
+import { SystemStatusPage } from "../features/system-status/SystemStatusPage";
 
 type View = "dashboard" | "login" | "signup" | "verify-phone";
 
@@ -18,6 +19,10 @@ function AppContent() {
 
     const goLogin = useCallback(() => setView("login"), []);
     const path = window.location.pathname;
+
+    if (path === "/system/status") {
+        return <SystemStatusPage />;
+    }
 
     if (view === "signup") {
         return (
