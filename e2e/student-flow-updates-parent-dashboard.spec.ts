@@ -80,6 +80,15 @@ async function loginAsDaniel(page: Page) {
   await expect
       .poll(
           async () => {
+            const serverError = await page
+                .getByText(/Unable to connect to the server/i)
+                .isVisible()
+                .catch(() => false);
+
+            if (serverError) {
+              return "SERVER_ERROR";
+            }
+
             const cookies = await page.context().cookies();
             return cookies.find((cookie) => cookie.name === "BOOM_SESSION")?.value ?? null;
           },
@@ -87,6 +96,19 @@ async function loginAsDaniel(page: Page) {
             message: "BOOM_SESSION cookie should be created after login",
             timeout: 20_000,
             intervals: [500, 1_000, 2_000],
+          },
+      )
+      .not.toBe("SERVER_ERROR");
+
+  await expect
+      .poll(
+          async () => {
+            const cookies = await page.context().cookies();
+            return cookies.find((cookie) => cookie.name === "BOOM_SESSION")?.value ?? null;
+          },
+          {
+            message: "BOOM_SESSION cookie should be available after login",
+            timeout: 5_000,
           },
       )
       .not.toBeNull();
